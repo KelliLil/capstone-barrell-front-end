@@ -1,3 +1,9 @@
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import Button from "../components/button";
+import Error from "../components/error";
 import InputText from "../components/form/input-text";
 import apiService from "../services/api";
 
@@ -7,19 +13,16 @@ export default function LoginRegister() {
 
   const formSchema = isRegistering
     ? yup.object({
+        name: yup.string().required("Name is required"),
+        email: yup.email().required("Email is required"),
         username: yup.string().required("Username is required"),
         password: yup
           .string()
           .min(3, "Password must be at least 3 characters long"),
 
-        //  Only validate WHEN the password field has a value
-        confirmPassword: yup.string().when("password", {
-          // '!!' is a shorthand for using 'Boolean()' to convert a value to a boolean
-          is: (val) => !!(val && val.length > 0),
-          then: yup
-            .string()
-            .oneOf([yup.ref("password")], "Passwords must match"),
-        }),
+        confirmPassword: yup
+          .string()
+          .oneOf([yup.ref("password"), null], "Passwords must match"),
       })
     : yup.object({
         username: yup.string().required("Username is required"),
@@ -37,6 +40,7 @@ export default function LoginRegister() {
     mode: "onChange",
     resolver: yupResolver(formSchema),
   });
+
   const handleError = (error) => {
     if (error.response) {
       error.response.json().then((json) => {
@@ -46,6 +50,7 @@ export default function LoginRegister() {
       setError({ message: error.message });
     }
   };
+
   const handleSubmission = (submittedUser) => {
     apiService
       .loginOrRegister(submittedUser, isRegistering)
@@ -58,6 +63,7 @@ export default function LoginRegister() {
         handleError(error);
       });
   };
+
   return (
     <main>
       <form
@@ -67,4 +73,50 @@ export default function LoginRegister() {
         onSubmit={handleSubmit(handleSubmission)}
         onFocus={() => {
           setError(null);
-}}
+        }}
+      >
+        <InputText label="Username" id="username" register={register}>
+          {errors.username && <Error message={errors.username.message} />}
+        </InputText>
+        <InputText
+          label="Password"
+          id="password"
+          type="password"
+          register={register}
+        >
+          {errors.password && <Error message={errors.password.message} />}
+        </InputText>
+
+        {isRegistering && (
+          <InputText
+            label="Confirm Password"
+            id="confirmPassword"
+            type="password"
+            register={register}
+          >
+            {errors.confirmPassword && (
+              <Error message={errors.confirmPassword.message} />
+            )}
+          </InputText>
+        )}
+
+        <Button type="submit" text={isRegistering ? "Sign Up" : "Login"} />
+
+        <button
+          type="reset"
+          className="text-center"
+          onClick={() => {
+            setIsRegistering((prev) => !prev);
+          }}
+        >
+          {isRegistering
+            ? "Already have an account?"
+            : "Don't have an account?"}
+        </button>
+
+        {/* Conditional rendering: IF error is updated to something truthy (not null)... */}
+        {error && <Error message={error.message} />}
+      </form>
+    </main>
+  );
+}

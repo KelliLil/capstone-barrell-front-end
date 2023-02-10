@@ -13,16 +13,18 @@ export default function LoginRegister() {
 
   const formSchema = isRegistering
     ? yup.object({
-        name: yup.string().required("Name is required"),
-        email: yup.email().required("Email is required"),
         username: yup.string().required("Username is required"),
         password: yup
           .string()
           .min(3, "Password must be at least 3 characters long"),
 
-        confirmPassword: yup
-          .string()
-          .oneOf([yup.ref("password"), null], "Passwords must match"),
+        //  Only validate WHEN the password field has a value
+        confirmPassword: yup.string().when("password", {
+          is: (passwordVal) => passwordVal.length,
+          then: yup
+            .string()
+            .oneOf([yup.ref("password")], "Passwords must match"),
+        }),
       })
     : yup.object({
         username: yup.string().required("Username is required"),

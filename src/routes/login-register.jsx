@@ -7,7 +7,7 @@ import Error from "../components/error";
 import InputText from "../components/form/input-text";
 import apiService from "../services/api";
 
-export default function LoginRegister() {
+export default function Login() {
   const [isRegistering, setIsRegistering] = useState(true);
   const [error, setError] = useState(null);
 
@@ -17,14 +17,6 @@ export default function LoginRegister() {
         password: yup
           .string()
           .min(3, "Password must be at least 3 characters long"),
-
-        //  Only validate WHEN the password field has a value
-        confirmPassword: yup.string().when("password", {
-          is: (passwordVal) => passwordVal.length,
-          then: yup
-            .string()
-            .oneOf([yup.ref("password")], "Passwords must match"),
-        }),
       })
     : yup.object({
         username: yup.string().required("Username is required"),
@@ -55,7 +47,7 @@ export default function LoginRegister() {
 
   const handleSubmission = (submittedUser) => {
     apiService
-      .loginOrRegister(submittedUser, isRegistering)
+      .login(submittedUser, isRegistering)
       .then((response) => {
         if (response.token) {
           localStorage.setItem("token", response.token);
@@ -67,7 +59,12 @@ export default function LoginRegister() {
   };
 
   return (
-    <main>
+    <main className="bg-fuchsia-100">
+      <header>
+        <h1 className="m-3 py-3 text-center text-4xl font-bold text-fuchsia-800">
+          Welcome to Iron Out!
+        </h1>
+      </header>
       <form
         className="mt-4 flex flex-col items-center gap-y-4"
         // 'handleSubmit' is what React Hook Form uses for the submission
@@ -85,22 +82,8 @@ export default function LoginRegister() {
           id="password"
           type="password"
           register={register}
-        >
-          {errors.password && <Error message={errors.password.message} />}
-        </InputText>
-
-        {isRegistering && (
-          <InputText
-            label="Confirm Password"
-            id="confirmPassword"
-            type="password"
-            register={register}
-          >
-            {errors.confirmPassword && (
-              <Error message={errors.confirmPassword.message} />
-            )}
-          </InputText>
-        )}
+        />
+        {errors.password && <Error message={errors.password.message} />}
 
         <Button type="submit" text={isRegistering ? "Sign Up" : "Login"} />
 

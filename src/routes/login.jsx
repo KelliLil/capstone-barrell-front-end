@@ -8,29 +8,20 @@ import InputText from "../components/form/input-text";
 import apiService from "../services/api";
 
 export default function Login() {
-  const [isRegistering, setIsRegistering] = useState(true);
   const [error, setError] = useState(null);
 
-  const formSchema = isRegistering
-    ? yup.object({
-        username: yup.string().required("Username is required"),
-        password: yup
-          .string()
-          .min(3, "Password must be at least 3 characters long"),
-      })
-    : yup.object({
-        username: yup.string().required("Username is required"),
-        password: yup
-          .string()
-          .min(3, "Password must be at least 3 characters long"),
-      });
+  const formSchema = yup.object({
+    username: yup.string().required("Username is required"),
+    password: yup
+      .string()
+      .min(3, "Password must be at least 3 characters long"),
+  });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({
-    // Yup will run for validation as the user types in the form inputs.
     mode: "onChange",
     resolver: yupResolver(formSchema),
   });
@@ -47,7 +38,7 @@ export default function Login() {
 
   const handleSubmission = (submittedUser) => {
     apiService
-      .login(submittedUser, isRegistering)
+      .login(submittedUser)
       .then((response) => {
         if (response.token) {
           localStorage.setItem("token", response.token);
@@ -67,8 +58,6 @@ export default function Login() {
       </header>
       <form
         className="mt-4 flex flex-col items-center gap-y-4"
-        // 'handleSubmit' is what React Hook Form uses for the submission
-        // 'handleSubmission' is the function we wrote to be used by React Hook Form
         onSubmit={handleSubmit(handleSubmission)}
         onFocus={() => {
           setError(null);
@@ -85,21 +74,8 @@ export default function Login() {
         />
         {errors.password && <Error message={errors.password.message} />}
 
-        <Button type="submit" text={isRegistering ? "Sign Up" : "Login"} />
+        <Button type="submit" text="Login" />
 
-        <button
-          type="reset"
-          className="text-center"
-          onClick={() => {
-            setIsRegistering((prev) => !prev);
-          }}
-        >
-          {isRegistering
-            ? "Already have an account?"
-            : "Don't have an account?"}
-        </button>
-
-        {/* Conditional rendering: IF error is updated to something truthy (not null)... */}
         {error && <Error message={error.message} />}
       </form>
     </main>

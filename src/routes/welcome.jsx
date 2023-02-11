@@ -1,5 +1,4 @@
 import { useState } from "react";
-import apiService from "../services/api";
 
 export default function welcomePage() {
   const [isRegistering, setIsRegistering] = useState(true);

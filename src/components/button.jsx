@@ -2,10 +2,11 @@ import PropTypes from "prop-types";
 
 export default function Button({ type, color, text }) {
   const colorVariants = {
-    blue: "bg-blue-600 hover:bg-blue-500 text-white",
+    blue: "bg-purple-600 hover:bg-purple-500 text-white",
     green: "bg-green-500 hover:bg-green-400 text-white",
     red: "bg-red-500 hover:bg-red-400 text-white",
     yellow: "bg-yellow-300 hover:bg-yellow-400 text-black",
+    purple: "bg-purple-600 hover:bg-purple-500 text-white",
   };
 
   return (
@@ -19,7 +20,7 @@ export default function Button({ type, color, text }) {
 }
 
 Button.defaultProps = {
-  color: "green",
+  color: "purple",
   type: "button",
 };
 
